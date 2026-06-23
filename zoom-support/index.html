@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Zoomに入れない・接続できない時のトラブルシューティングガイド">
+  <title>Zoomに入れない時のサポートガイド</title>
+  <style>
+    :root {
+      --primary: #5b9bd5;
+      --primary-light: #ddeeff;
+      --accent: #f4a261;
+      --accent-light: #fff3e8;
+      --success: #52b788;
+      --success-light: #e8f7ef;
+      --warn: #e76f51;
+      --warn-light: #fdeee9;
+      --text: #3d3d3d;
+      --muted: #888;
+      --bg: #f8f9fc;
+      --card: #ffffff;
+      --radius: 16px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #5b9bd5 0%, #7ec8e3 100%);
+      color: white;
+      text-align: center;
+      padding: 40px 20px 32px;
+    }
+    header .emoji { font-size: 48px; display: block; margin-bottom: 8px; }
+    header h1 { font-size: 1.6rem; font-weight: bold; margin-bottom: 6px; }
+    header p { font-size: 0.95rem; opacity: 0.92; }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* ナビゲーションカード */
+    .nav-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .nav-btn {
+      display: block;
+      background: var(--card);
+      border: 2px solid var(--primary-light);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .nav-btn .sub { font-size: 0.82rem; font-weight: normal; color: var(--muted); display: block; margin-top: 3px; }
+
+    /* セクション */
+    .section {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: var(--primary-light);
+      padding: 16px 20px;
+      font-weight: bold;
+      font-size: 1.05rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-body { padding: 20px; }
+
+    /* ステップ */
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      background: var(--primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-title { font-weight: bold; margin-bottom: 4px; }
+    .step-desc { font-size: 0.92rem; color: #555; }
+
+    /* ヒントボックス */
+    .hint {
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+    .hint-info { background: var(--primary-light); border-left: 4px solid var(--primary); }
+    .hint-warn { background: var(--warn-light); border-left: 4px solid var(--warn); }
+    .hint-ok { background: var(--success-light); border-left: 4px solid var(--success); }
+
+    /* Q&A トラブルシューティング */
+    .qa-intro {
+      text-align: center;
+      padding: 16px 0 8px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .qa-item { margin-bottom: 12px; }
+    .qa-question {
+      background: var(--accent-light);
+      border: 2px solid #f4a26140;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.97rem;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .qa-question:hover { background: #ffe8cc; }
+    .qa-question .arrow { transition: transform 0.25s; color: var(--accent); font-size: 1.1rem; }
+    .qa-question.open .arrow { transform: rotate(180deg); }
+
+    .qa-answer {
+      display: none;
+      background: #fffaf5;
+      border: 1.5px solid #f4a26130;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 16px 18px;
+      font-size: 0.92rem;
+    }
+    .qa-answer.visible { display: block; }
+
+    .qa-answer ol, .qa-answer ul {
+      padding-left: 1.4em;
+      margin: 8px 0;
+    }
+    .qa-answer li { margin-bottom: 6px; }
+
+    /* チェック完了バッジ */
+    .badge {
+      display: inline-block;
+      background: var(--success);
+      color: white;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    /* テストURL強調 */
+    .test-url-box {
+      background: linear-gradient(135deg, #e8f4ff, #ddeeff);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      margin: 12px 0;
+    }
+    .test-url-box a {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary);
+      word-break: break-all;
+    }
+
+    /* まだ解決しない時 */
+    .contact-box {
+      background: linear-gradient(135deg, #fff0e8, #ffe8d6);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .contact-box p { font-size: 0.95rem; color: #555; margin-bottom: 6px; }
+    .contact-box strong { color: var(--warn); font-size: 1.05rem; }
+
+    /* divider */
+    .divider { border: none; border-top: 1.5px solid #eee; margin: 8px 0 16px; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="emoji">💻</span>
+  <h1>Zoomに入れない時のサポートガイド</h1>
+  <p>困ったときはここを見れば大丈夫！一緒に解決しましょう✨</p>
+</header>
+
+<div class="container">
+
+  <!-- ナビ -->
+  <div class="nav-section">
+    <a class="nav-btn" href="#setup">
+      📱 はじめてZoomを使う方はこちら
+      <span class="sub">アプリのインストール〜テスト参加まで</span>
+    </a>
+    <a class="nav-btn" href="#trouble">
+      ⚠️ Zoomに入れなくて困っている方
+      <span class="sub">よくある原因と解決方法（Q&A形式）</span>
+    </a>
+  </div>
+
+  <!-- ===== セクション1：初めての方向け ===== -->
+  <div class="section" id="setup">
+    <div class="section-header">📱 はじめてZoomを使う方向けガイド</div>
+    <div class="section-body">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Zoomアプリをインストールする</div>
+          <div class="step-desc">
+            App Store（iPhone）または Google Play（Android）で<strong>「ZOOM」</strong>と検索し、<br>
+            <strong>「ZOOM Cloud Meetings」</strong>をインストールしてください。
+          </div>
+          <div class="hint hint-info">💡 すでにインストール済みの方は、アプリが最新版かどうか確認してみてください。古いバージョンだと入れないことがあります。</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">テスト用URLをタップして「参加」を押す</div>
+          <div class="step-desc">下のURLをタップして、テスト会議に参加してみましょう。</div>
+          <div class="test-url-box">
+            <a href="https://zoom.us/test" target="_blank" rel="noopener">https://zoom.us/test</a>
+          </div>
+          <div class="step-desc">画面に「参加」ボタンが出たら押してください。</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">「ビデオ付きで参加」を押す <span class="badge">テスト①カメラ確認</span></div>
+          <div class="step-desc">
+            自分のお顔が画面に映っていればOKです！<br>
+            そのまま「<strong>ビデオ付きで参加</strong>」ボタンを押してください。
+          </div>
+          <div class="hint hint-info">📝 iPhoneとAndroidで画面が多少違う場合がありますが、「ビデオ付きで参加」を押せば問題ありません。</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">「インターネットを使用した通話」を押す</div>
+          <div class="step-desc">
+            音声の接続方法を聞かれます。<br>
+            「<strong>インターネットを使用した通話</strong>」を押してください。
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">「参加者」ボタンで音声を確認 <span class="badge">テスト②マイク確認</span></div>
+          <div class="step-desc">
+            画面下の「<strong>参加者</strong>」ボタンを押してから、「あーあー」と声を出してみてください。<br>
+            マイクのアイコンが<strong>緑色</strong>に動いていれば音声OKです！
+          </div>
+          <div class="hint hint-ok">✅ ここまでできたら準備完了です！「退出する」を押してテストを終了してください。</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">当日は事務局から届いたURLをタップして参加</div>
+          <div class="step-desc">
+            オープンチャットで送られてくる「参加用ZOOMリンク」のURLをタップすれば、そのまま講義に入れます。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== セクション2：トラブルシューティング ===== -->
+  <div class="section" id="trouble">
+    <div class="section-header">⚠️ Zoomに入れない！よくある原因と解決方法</div>
+    <div class="section-body">
+
+      <p class="qa-intro">当てはまる症状を選んでください👇</p>
+
+      <!-- Q1 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          URLをタップしても何も起きない・アプリが開かない
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li><strong>LINEのアプリ内ブラウザ問題</strong>が多いです。URLをコピーして、Safari（iPhone）またはChrome（Android）に貼り付けて開いてみてください。</li>
+            <li>それでもアプリが起動しない場合は、一度Zoomアプリをアンインストールして再インストールしてみてください。</li>
+            <li>スマホを再起動してから試すと解決することもあります。</li>
+          </ol>
+          <div class="hint hint-warn">⚠️ 「ご使用のブラウザではサポートされていません」と出た場合は、LINEとZoomの連動がうまくいっていないサインです。URLをコピーして別ブラウザで開いてください。</div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          「接続しています」から画面が進まない
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li>Wi-Fiや通信状況を確認してください。一度機内モードにして戻すと接続が安定することがあります。</li>
+            <li>Zoomアプリを完全に終了（バックグラウンドからも閉じる）してから再度URLをタップしてください。</li>
+            <li>それでも変わらない場合は、スマホを再起動して試してみてください。</li>
+          </ol>
+          <div class="hint hint-info">💡 4G/5G回線とWi-Fiを切り替えてみるのも効果的です。</div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          パスワード・パスコードを求められる
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li>事務局から送られてきたメールやオープンチャットの投稿をもう一度確認してください。パスワードが記載されていることがあります。</li>
+            <li>URLが正しければ、パスワードは自動で入力されることが多いです。URLをまるごとコピーして使っているか確認してください。</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          「待機室にいます」と表示されて入れない
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <p>これは正常な動作です！ホスト（主催者）が許可を出すと自動的に入れます。<br>
+          少し待っていてください。しばらく待っても変わらない場合は事務局にご連絡ください。</p>
+          <div class="hint hint-ok">✅ 焦らず待ちましょう。音はしませんが自動で入室されます。</div>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          入れたけどカメラ（映像）が映らない
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li>Zoomアプリにカメラのアクセス許可を与えているか確認してください。<br>
+              <strong>iPhone：</strong>設定 → ZOOM → カメラ → オン<br>
+              <strong>Android：</strong>設定 → アプリ → ZOOM → 権限 → カメラ → 許可
+            </li>
+            <li>ミーティング画面の下にあるビデオアイコン（📷）に赤い斜線が入っていませんか？タップするとオン/オフが切り替わります。</li>
+            <li>他のカメラを使うアプリ（LINEビデオ通話など）が起動中の場合は終了してください。</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          入れたけど相手の声が聞こえない・自分の声が届かない
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li><strong>マイクがミュートになっていないか確認。</strong>画面下のマイクアイコン（🎤）に赤い斜線が入っていればタップしてミュート解除。</li>
+            <li><strong>音量を上げてみてください。</strong>スマホの音量ボタンを押して確認。</li>
+            <li>Zoomアプリにマイク・スピーカーの許可を与えているか確認してください。<br>
+              <strong>iPhone：</strong>設定 → ZOOM → マイク → オン<br>
+              <strong>Android：</strong>設定 → アプリ → ZOOM → 権限 → マイク → 許可
+            </li>
+            <li>イヤホンを接続している場合は、一度外してスマホのスピーカーで試してみてください。</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          「このミーティングの定員を超えています」と表示される
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <p>主催者側の参加人数の上限に達している状態です。<br>
+          事務局にご連絡ください。別のURLや時間帯で案内してもらえる場合があります。</p>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          Zoomのバージョンが古くて入れないと言われた
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li>App Store / Google Play を開いてZoomを検索し、「アップデート」ボタンを押してください。</li>
+            <li>アップデート後、スマホを一度再起動してから再度試してください。</li>
+          </ol>
+          <div class="hint hint-info">💡 アップデートには数分かかる場合があります。Wi-Fiに繋いでおくと早く終わります。</div>
+        </div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="qa-item">
+        <div class="qa-question" onclick="toggleQA(this)">
+          Zoomアプリ自体が固まる・クラッシュする
+          <span class="arrow">▼</span>
+        </div>
+        <div class="qa-answer">
+          <ol>
+            <li>アプリを完全に終了して、スマホを再起動してください。</li>
+            <li>スマホのストレージ（空き容量）が不足していると不安定になります。不要なアプリや写真を削除してみてください。</li>
+            <li>Zoomを一度アンインストール → 再インストールすると改善することがあります。</li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- それでも解決しない時 -->
+  <div class="contact-box">
+    <p>上記を試してもうまくいかない場合は…</p>
+    <strong>事務局にご連絡ください 📩</strong>
+    <p style="margin-top:10px; font-size:0.88rem;">「どの手順で・どんな画面が出ているか」を教えていただけると、よりスムーズに対応できます。スクリーンショットがあると助かります！</p>
+  </div>
+
+</div>
+
+<footer>
+  Zoomサポートガイド
+</footer>
+
+<script>
+  function toggleQA(el) {
+    el.classList.toggle('open');
+    const answer = el.nextElementSibling;
+    answer.classList.toggle('visible');
+  }
+
+  // アンカーリンクのスムーズスクロール
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
